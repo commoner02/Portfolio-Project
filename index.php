@@ -1,12 +1,10 @@
 <?php
-// Start session to store messages
+
 session_start();
 
-// Retrieve messages from session if they exist
 $success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
 $error_message = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
 
-// Clear the messages after retrieving
 unset($_SESSION['success_message']);
 unset($_SESSION['error_message']);
 ?>
@@ -19,7 +17,7 @@ unset($_SESSION['error_message']);
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portfolio</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="shortcut icon" href="./images/logos/icons8-portfolio-undefined-96.png" type="image/x-icon">
+  <link rel="shortcut icon" href="./uploads/logos/icons8-portfolio-undefined-96.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mozilla+Text:wght@200..700&display=swap" rel="stylesheet">
@@ -65,7 +63,7 @@ unset($_SESSION['error_message']);
           </div>
         </div>
         <div class="intro-right">
-          <img src="./images/myPhoto02.png" alt="myPhoto" />
+          <img src="./uploads/me/myPhoto02.png" alt="myPhoto" />
         </div>
       </div>
     </div>
@@ -74,31 +72,31 @@ unset($_SESSION['error_message']);
         <h3>Skills</h3>
         <div class="skill-list">
           <div class="skill-item">
-            <img src="./images/logos/html-5-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/html-5-svgrepo-com.svg" alt="skill-logo">
             <p>HTML</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/css-3-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/css-3-svgrepo-com.svg" alt="skill-logo">
             <p>CSS</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/js-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/js-svgrepo-com.svg" alt="skill-logo">
             <p>Javascript</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/php-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/php-svgrepo-com.svg" alt="skill-logo">
             <p>PHP</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/android-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/android-svgrepo-com.svg" alt="skill-logo">
             <p>Android</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/java-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/java-svgrepo-com.svg" alt="skill-logo">
             <p>Java</p>
           </div>
           <div class="skill-item">
-            <img src="./images/logos/git-svgrepo-com.svg" alt="skill-logo">
+            <img src="./uploads/logos/git-svgrepo-com.svg" alt="skill-logo">
             <p>Git</p>
           </div>
 
@@ -111,7 +109,7 @@ unset($_SESSION['error_message']);
         <div class="project-list">
           <div class="project-item">
             <div class="project-left">
-              <img src="./images/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
+              <img src="./uploads/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
             </div>
             <div class="project-right">
               <div class="project-title">
@@ -127,7 +125,7 @@ unset($_SESSION['error_message']);
           </div>
           <div class="project-item">
             <div class="project-left">
-              <img src="./images/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
+              <img src="./uploads/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
             </div>
             <div class="project-right">
               <div class="project-title">
@@ -143,7 +141,7 @@ unset($_SESSION['error_message']);
           </div>
           <div class="project-item">
             <div class="project-left">
-              <img src="./images/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
+              <img src="./uploads/projects/OOP Project-Fitness.png" alt="Project-Fitness" class="project-image">
             </div>
             <div class="project-right">
               <div class="project-title">
