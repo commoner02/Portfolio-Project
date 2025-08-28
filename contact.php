@@ -1,64 +1,88 @@
 <?php
-header('Content-Type: application/json');
+// Start session to store messages
+session_start();
 
-// Only allow POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
-}
+// Include database configuration
+include("db-config.php");
 
-// Get and sanitize form data
-$name = isset($_POST['name']) ? htmlspecialchars(trim($_POST['name'])) : '';
-$email = isset($_POST['email']) ? filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL) : '';
-$message = isset($_POST['message']) ? htmlspecialchars(trim($_POST['message'])) : '';
+// Initialize variables
+$success_message = "";
+$error_message = "";
 
-// Simple spam protection - honeypot field
-$honeypot = isset($_POST['website']) ? $_POST['website'] : '';
+// Check if form was submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sendEmail'])) {
+    // Check honeypot field (should be empty)
+    if (!empty($_POST['website'])) {
+        // Likely a bot, just redirect back
+        header("Location: index.php#contacts");
+        exit;
+    }
 
-// Validate required fields
-if (empty($name) || empty($email) || empty($message)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'All fields are required']);
-    exit;
-}
+    // Validate and sanitize input data
+    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
 
-// Validate email format
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Please provide a valid email address']);
-    exit;
-}
+    // Validate required fields
+    if (empty($name) || empty($email) || empty($message)) {
+        $error_message = 'All fields are required.';
+        $_SESSION['error_message'] = $error_message;
+        // Preserve form values in session
+        $_SESSION['form_values'] = $_POST;
+        header("Location: index.php#contacts");
+        exit;
+    }
 
-// Check message length
-if (strlen($message) < 10) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Message should be at least 10 characters long']);
-    exit;
-}
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = 'Invalid email format.';
+        $_SESSION['error_message'] = $error_message;
+        // Preserve form values in session
+        $_SESSION['form_values'] = $_POST;
+        header("Location: index.php#contacts");
+        exit;
+    }
 
-// Check honeypot (if filled, likely a bot)
-if (!empty($honeypot)) {
-    // Log this attempt if you want, but just return success to bots
-    echo json_encode(['success' => true]);
-    exit;
-}
-
-// Email configuration
-$to = "77.shuvo.joy@gmail.com";
-$subject = "New Contact Form Message from $name";
-$body = "Name: $name\nEmail: $email\nMessage:\n$message";
-
-// Email headers
-$headers = "From: $name <$email>\r\n";
-$headers .= "Reply-To: $email\r\n";
-$headers .= "X-Mailer: PHP/" . phpversion();
-
-// Send email
-if (mail($to, $subject, $body, $headers)) {
-    echo json_encode(['success' => true]);
+    try {
+        // Prepare and execute database query using prepared statements
+        $insert_query = "INSERT INTO `messages` (name, email, message) VALUES (?, ?, ?)";
+        $stmt = mysqli_prepare($connection, $insert_query);
+        
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "sss", $name, $email, $message);
+            
+            if (mysqli_stmt_execute($stmt)) {
+                $success_message = 'Message sent successfully!';
+                $_SESSION['success_message'] = $success_message;
+            } else {
+                $error_message = 'Database error: ' . mysqli_error($connection);
+                $_SESSION['error_message'] = $error_message;
+                // Preserve form values in session
+                $_SESSION['form_values'] = $_POST;
+            }
+            
+            mysqli_stmt_close($stmt);
+        } else {
+            $error_message = 'Database error: ' . mysqli_error($connection);
+            $_SESSION['error_message'] = $error_message;
+            // Preserve form values in session
+            $_SESSION['form_values'] = $_POST;
+        }
+    } catch (Exception $e) {
+        $error_message = 'An error occurred: ' . $e->getMessage();
+        $_SESSION['error_message'] = $error_message;
+        // Preserve form values in session
+        $_SESSION['form_values'] = $_POST;
+    }
 } else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to send message. Please try again later.']);
+    $error_message = 'Invalid request.';
+    $_SESSION['error_message'] = $error_message;
 }
+
+// Close database connection
+mysqli_close($connection);
+
+// Redirect back to the form
+header("Location: index.php#contacts");
+exit;
 ?>

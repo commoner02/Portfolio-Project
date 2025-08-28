@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Project buttons
   const projectButtons = document.querySelectorAll(".project-button button");
   const projectRepos = [
-    "https://github.com/commoner02/fitness-tracker",
+    "https://github.com/commoner02/OOP-Project",
     "https://github.com/commoner02/project2",
     "https://github.com/commoner02/project3",
   ];
@@ -82,47 +82,60 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Contact form functionality
-  const contactForm = document.getElementById("contact-form");
-  const formStatus = document.getElementById("form-status");
+  //   document.addEventListener('DOMContentLoaded', function() {
+  //   const contactForm = document.getElementById('contact-form');
+  //   const formStatus = document.getElementById('form-status');
 
-  contactForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  //   contactForm.addEventListener('submit', function(e) {
+  //       e.preventDefault();
 
-    const submitBtn = contactForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
+  //       // Show loading state
+  //       const submitBtn = contactForm.querySelector('button[type="submit"]');
+  //       const originalText = submitBtn.textContent;
+  //       submitBtn.textContent = 'Sending...';
+  //       submitBtn.disabled = true;
 
-    submitBtn.textContent = "Sending...";
-    submitBtn.disabled = true;
-    formStatus.textContent = "";
+  //       // Create FormData object
+  //       const formData = new FormData(contactForm);
 
-    try {
-      const formData = new FormData(contactForm);
-      const response = await fetch("contact.php", {
-        method: "POST",
-        body: formData,
-      });
+  //       // Send AJAX request
+  //       fetch('contact.php', {
+  //           method: 'POST',
+  //           body: formData
+  //       })
+  //       .then(response => response.json())
+  //       .then(data => {
+  //           if (data.success) {
+  //               // Show success message
+  //               formStatus.textContent = data.message;
+  //               formStatus.className = 'success';
+  //               formStatus.style.display = 'block';
 
-      const result = await response.json();
+  //               // Reset form
+  //               contactForm.reset();
+  //           } else {
+  //               // Show error message
+  //               formStatus.textContent = data.message;
+  //               formStatus.className = 'error';
+  //               formStatus.style.display = 'block';
+  //           }
+  //       })
+  //       .catch(error => {
+  //           // Show error message
+  //           formStatus.textContent = 'An error occurred. Please try again.';
+  //           formStatus.className = 'error';
+  //           formStatus.style.display = 'block';
+  //       })
+  //       .finally(() => {
+  //           // Reset button state
+  //           submitBtn.textContent = originalText;
+  //           submitBtn.disabled = false;
 
-      if (result.success) {
-        formStatus.textContent = "Message sent successfully!";
-        formStatus.style.color = "green";
-        contactForm.reset();
-      } else {
-        throw new Error(result.error || "Failed to send message");
-      }
-    } catch (error) {
-      formStatus.textContent = "Error sending message. Please try again.";
-      formStatus.style.color = "red";
-      console.error("Error:", error);
-    } finally {
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-
-      // Clear status message after 5 seconds
-      setTimeout(() => {
-        formStatus.textContent = "";
-      }, 5000);
-    }
-  });
+  //           // Hide status message after 5 seconds
+  //           setTimeout(() => {
+  //               formStatus.style.display = 'none';
+  //           }, 5000);
+  //       });
+  //   });
+  // });
 });

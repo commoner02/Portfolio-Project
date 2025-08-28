@@ -1,3 +1,4 @@
+/* root */
 :root {
   --primary-color: rgb(0, 0, 0, 0.95);
   --button-color: red;
@@ -24,7 +25,9 @@ h1,
 h2 {
   font-family: "Playfair Display", serif;
 }
-.header {
+
+/* header-items*/
+header .header {
   padding: 0.6rem;
   position: relative;
   padding-right: 3rem;
@@ -32,6 +35,7 @@ h2 {
 .header-contents {
   display: flex;
   align-items: center;
+  padding: 1rem;
 }
 .hamburger {
   display: flex;
@@ -52,7 +56,6 @@ h2 {
   background-color: red;
   transition: all 0.3s ease;
 }
-/* Removed hover effects from hamburger */
 .logo {
   position: absolute;
   left: 50%;
@@ -81,12 +84,11 @@ h2 {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-/* Simple hover effect for nav items */
-.nav-item:hover {
-  color: var(--hover-color);
-}
 .nav-bar.active {
   left: 0;
+}
+.nav-item:hover {
+    color: var(--hover-color);
 }
 .hamburger.active .hamburger-bar:nth-child(1) {
   transform: translateY(8.5px) rotate(45deg);
@@ -125,12 +127,12 @@ h2 {
     padding: 0.5rem;
     border-bottom: none;
   }
-  /* Desktop hover effect for nav items */
   .nav-item:hover {
     color: var(--hover-color);
   }
 }
 
+/* intro-section*/
 .intro {
   margin-top: 15px;
   align-content: center;
@@ -146,15 +148,6 @@ h2 {
   align-items: center;
   text-align: center;
 }
-@media (min-width: 980px) {
-  .intro-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    margin: auto;
-    margin-bottom: 40px;
-  }
-}
 #name {
   font-weight: bold;
   font-size: 1.5em;
@@ -168,14 +161,6 @@ h2 {
   display: flex;
   gap: 10px;
   justify-content: center;
-}
-@media (min-width: 980px) {
-  .intro-left {
-    max-width: 50%;
-  }
-  .intro-buttons {
-    justify-content: left;
-  }
 }
 .intro-text {
   width: 90%;
@@ -193,26 +178,11 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-/* Simple button hover effect */
 button:hover {
   background-color: var(--hover-color);
 }
 .btnHolder {
   padding-bottom: 20px;
-}
-@media (min-width: 980px) {
-  .intro-text {
-    text-align: left;
-  }
-  .btnHolder {
-    text-align: left;
-    padding-bottom: 20px;
-  }
-  .intro-right {
-    padding: 1rem;
-    max-width: 40%;
-    margin: auto;
-  }
 }
 .intro-right {
   padding: 1rem;
@@ -232,17 +202,38 @@ button:hover {
   opacity: 0.9;
 }
 @media (min-width: 980px) {
-  .intro-right {
-    padding: 1rem;
-    max-width: 40%;
+  .intro-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
     margin: auto;
+    margin-bottom: 40px;
   }
   .intro img {
     max-width: 50%;
     max-height: 50%;
   }
+  .intro-text {
+    text-align: left;
+  }
+  .btnHolder {
+    text-align: left;
+    padding-bottom: 20px;
+  }
+  .intro-right {
+    padding: 1rem;
+    max-width: 40%;
+    margin: auto;
+  }
+  .intro-left {
+    max-width: 50%;
+  }
+  .intro-buttons {
+    justify-content: left;
+  }
 }
 
+/* skills-section */
 .skill-content {
   width: 60%;
   margin: auto;
@@ -266,14 +257,16 @@ button:hover {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-/* Simple skill item hover effect */
 .skill-item:hover {
   background-color: rgba(255, 68, 0, 0.1);
 }
 .skills img {
   max-width: 50px;
 }
+@media (min-width: 400px) {
+}
 
+/* project-section */
 .project-container {
   width: 60%;
   margin: auto;
@@ -307,7 +300,6 @@ button:hover {
 .project-right button {
   margin-top: 10px;
 }
-/* Simple hover effect for project buttons */
 .project-button button:hover {
   background-color: var(--hover-color);
 }
@@ -324,6 +316,7 @@ button:hover {
   }
 }
 
+/* education-section */
 .edu-container {
   width: 60%;
   margin: auto;
@@ -364,6 +357,7 @@ button:hover {
   border: 3px solid tomato;
 }
 
+/* contact-section */
 .contact-container {
   width: 60%;
   height: auto;
@@ -376,12 +370,6 @@ button:hover {
   margin: auto;
   border-radius: 10px;
   padding: 10px;
-}
-@media (min-width: 980px) {
-  .contact-content {
-    flex-direction: row;
-    justify-content: space-around;
-  }
 }
 .contact-left {
   padding-top: 4%;
@@ -419,6 +407,10 @@ button:hover {
   text-align: center;
 }
 @media (min-width: 980px) {
+  .contact-content {
+    flex-direction: row;
+    justify-content: space-around;
+  }
   #sender_name,
   #sender_email,
   #sender_message {
@@ -428,6 +420,8 @@ button:hover {
     margin-left: 100px;
   }
 }
+
+/* footer */
 footer {
   text-align: center;
   padding: 5px;
