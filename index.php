@@ -135,19 +135,7 @@ unset($_SESSION['error_message']);
                 </div>
                 <div class='project-button'>
                   <button onclick="window.location.href='<?php echo htmlspecialchars($project_link, ENT_QUOTES, 'UTF-8'); ?>'">See Repo</button>
-                </div>require_once '../includes/auth.php';
-require_once '../includes/config.php';
-protectPage();
-
-$message = '';
-$message_type = '';
-$editProject = null;
-
-if (isset($_SESSION['message'])) {
-    $message = $_SESSION['message'];
-    $message_type = $_SESSION['message_type'];
-    unset($_SESSION['message'], $_SESSION['message_type']);
-}
+                </div>
               </div>
             </div>
 
