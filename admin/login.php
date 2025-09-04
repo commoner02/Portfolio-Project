@@ -26,15 +26,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 ?>
 
-
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mozilla+Text:wght@200..700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Mozilla Text', Arial, sans-serif;
             background-color: #f0f0f0;
             display: flex;
             justify-content: center;
@@ -47,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
 
@@ -79,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         button {
             width: 100%;
             padding: 10px;
-            background-color: #4CAF50;
+            background-color: orangered;
             color: white;
             border: none;
             border-radius: 5px;
@@ -88,13 +89,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #e64100;
         }
 
         .error {
             color: red;
             text-align: center;
             margin-bottom: 15px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        #show-password {
+            margin: 0;
+            padding: 0;
+        }
+
+        .checkbox-label {
+            padding-top: 5px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -116,6 +136,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="input-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="show-password" onclick="togglePassword()">
+                    <label for="show-password" class="checkbox-label">Show Password</label>
+                </div>
+                <script>
+                    function togglePassword() {
+                        var passwordField = document.getElementById("password");
+                        if (passwordField.type === "password") {
+                            passwordField.type = "text";
+                        } else {
+                            passwordField.type = "password";
+                        }
+                    }
+                </script>
             </div>
 
             <button type="submit">Login</button>

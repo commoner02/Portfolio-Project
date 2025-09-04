@@ -2,7 +2,6 @@
 
 require_once 'config.php';
 
-
 function checkLogin($username, $password)
 {
     global $pdo;
@@ -16,7 +15,7 @@ function checkLogin($username, $password)
         $user = $stmt->fetch();
 
         if (password_verify($password, $user['password'])) {
-            return true; // Login successful
+            return true;
         }
     }
 

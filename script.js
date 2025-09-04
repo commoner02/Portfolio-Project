@@ -1,24 +1,69 @@
+const skills = [
+  {
+    name: "HTML",
+    icon: "./uploads/logos/html-5-svgrepo-com.svg",
+  },
+  {
+    name: "CSS",
+    icon: "./uploads/logos/css-3-svgrepo-com.svg",
+  },
+  {
+    name: "Javascript",
+    icon: "./uploads/logos/js-svgrepo-com.svg",
+  },
+  {
+    name: "PHP",
+    icon: "./uploads/logos/php-svgrepo-com.svg",
+  },
+  {
+    name: "Android",
+    icon: "./uploads/logos/android-svgrepo-com.svg",
+  },
+  {
+    name: "Java",
+    icon: "./uploads/logos/java-svgrepo-com.svg",
+  },
+  {
+    name: "Git",
+    icon: "./uploads/logos/git-svgrepo-com.svg",
+  },
+];
+
+function loadSkills() {
+  const container = document.getElementById("skillContainer");
+  if (container) {
+    container.innerHTML = "";
+    skills.forEach((skill) => {
+      const skillDiv = document.createElement("div");
+      skillDiv.className = "skill-item";
+      skillDiv.innerHTML = `<img src="${skill.icon}" alt="skill-logo"><p>${skill.name}</p>`;
+      container.appendChild(skillDiv);
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-  // Navigation functionality
+  loadSkills();
+
   const navItems = document.querySelectorAll(".nav-item");
   const navBar = document.querySelector(".nav-bar");
   const hamburger = document.querySelector(".hamburger");
+  const githubBtn = document.getElementById("Github-btn");
+  const linkedinBtn = document.getElementById("Linkedin-btn");
+  const contactForm = document.getElementById("contact-form");
 
-  // Add click event to each nav item
   navItems.forEach((item) => {
     item.addEventListener("click", function () {
       const targetId = this.getAttribute("data-target");
       const targetSection = document.getElementById(targetId);
 
       if (targetSection) {
-        // Close mobile menu if open
-        if (navBar.classList.contains("active")) {
+        if (navBar && navBar.classList.contains("active")) {
           navBar.classList.remove("active");
           hamburger.classList.remove("active");
           document.body.style.overflow = "";
         }
 
-        // Scroll to the target section with offset for header
         const headerHeight = document.querySelector(".header").offsetHeight;
         const targetPosition = targetSection.offsetTop - headerHeight;
 
@@ -30,21 +75,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Hamburger menu toggle
-  hamburger.addEventListener("click", function () {
-    this.classList.toggle("active");
-    navBar.classList.toggle("active");
-    document.body.style.overflow = navBar.classList.contains("active")
-      ? "hidden"
-      : "";
-  });
+  if (hamburger && navBar) {
+    hamburger.addEventListener("click", function () {
+      this.classList.toggle("active");
+      navBar.classList.toggle("active");
+      document.body.style.overflow = navBar.classList.contains("active")
+        ? "hidden"
+        : "";
+    });
+  }
 
-  // Close menu when clicking outside on mobile
   document.addEventListener("click", function (event) {
     if (
       window.innerWidth < 980 &&
       !event.target.closest(".nav-bar") &&
       !event.target.closest(".hamburger") &&
+      navBar &&
       navBar.classList.contains("active")
     ) {
       hamburger.classList.remove("active");
@@ -53,89 +99,84 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Button functionality
-  document.getElementById("Github-btn").addEventListener("click", function () {
-    window.open("https://github.com/commoner02", "_blank");
-  });
+  if (githubBtn) {
+    githubBtn.addEventListener("click", function () {
+      window.open("https://github.com/commoner02", "_blank");
+    });
+  }
 
-  document
-    .getElementById("Linkedin-btn")
-    .addEventListener("click", function () {
+  if (linkedinBtn) {
+    linkedinBtn.addEventListener("click", function () {
       window.open(
         "https://linkedin.com/in/sree-shuvo-kumar-joy-b6a60737a",
         "_blank"
       );
     });
+  }
 
-  // Project buttons
-  const projectButtons = document.querySelectorAll(".project-button button");
-  const projectRepos = [
-    "https://github.com/commoner02/OOP-Project",
-    "https://github.com/commoner02/project2",
-    "https://github.com/commoner02/project3",
-  ];
+  if (contactForm) {
+    contactForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-  projectButtons.forEach((button, index) => {
-    button.addEventListener("click", function () {
-      window.open(projectRepos[index] || "#", "_blank");
+      const formData = new FormData(contactForm);
+      formData.append("sendEmail", "true");
+
+      const submitButton = contactForm.querySelector('button[type="submit"]');
+      const originalText = submitButton.textContent;
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending...";
+
+      fetch("index.php", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.text())
+        .then((data) => {
+          if (data.includes("Message sent successfully!")) {
+            showFormMessage("Message sent successfully!", "success");
+            contactForm.reset();
+          } else if (data.includes("All fields are required.")) {
+            showFormMessage("All fields are required.", "error");
+          } else if (data.includes("Please enter a valid email.")) {
+            showFormMessage("Please enter a valid email.", "error");
+          } else {
+            showFormMessage(
+              "Sorry, something went wrong. Please try again.",
+              "error"
+            );
+          }
+        })
+        .catch((error) => {
+          showFormMessage("An error occurred. Please try again.", "error");
+        })
+        .finally(() => {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        });
     });
-  });
+  }
 
-  // Contact form functionality
-  //   document.addEventListener('DOMContentLoaded', function() {
-  //   const contactForm = document.getElementById('contact-form');
-  //   const formStatus = document.getElementById('form-status');
+  function showFormMessage(message, type) {
+    const messageContainer = document.querySelector(".contact-right");
+    const existingMessage = messageContainer.querySelector(".success, .error");
 
-  //   contactForm.addEventListener('submit', function(e) {
-  //       e.preventDefault();
+    if (existingMessage) {
+      existingMessage.remove();
+    }
 
-  //       // Show loading state
-  //       const submitBtn = contactForm.querySelector('button[type="submit"]');
-  //       const originalText = submitBtn.textContent;
-  //       submitBtn.textContent = 'Sending...';
-  //       submitBtn.disabled = true;
+    const messageElement = document.createElement("p");
+    messageElement.className = type;
+    messageElement.textContent = message;
+    messageContainer.insertBefore(
+      messageElement,
+      messageContainer.querySelector("form")
+    );
 
-  //       // Create FormData object
-  //       const formData = new FormData(contactForm);
-
-  //       // Send AJAX request
-  //       fetch('contact.php', {
-  //           method: 'POST',
-  //           body: formData
-  //       })
-  //       .then(response => response.json())
-  //       .then(data => {
-  //           if (data.success) {
-  //               // Show success message
-  //               formStatus.textContent = data.message;
-  //               formStatus.className = 'success';
-  //               formStatus.style.display = 'block';
-
-  //               // Reset form
-  //               contactForm.reset();
-  //           } else {
-  //               // Show error message
-  //               formStatus.textContent = data.message;
-  //               formStatus.className = 'error';
-  //               formStatus.style.display = 'block';
-  //           }
-  //       })
-  //       .catch(error => {
-  //           // Show error message
-  //           formStatus.textContent = 'An error occurred. Please try again.';
-  //           formStatus.className = 'error';
-  //           formStatus.style.display = 'block';
-  //       })
-  //       .finally(() => {
-  //           // Reset button state
-  //           submitBtn.textContent = originalText;
-  //           submitBtn.disabled = false;
-
-  //           // Hide status message after 5 seconds
-  //           setTimeout(() => {
-  //               formStatus.style.display = 'none';
-  //           }, 5000);
-  //       });
-  //   });
-  // });
+    if (type === "success") {
+      setTimeout(() => {
+        messageElement.remove();
+      }, 5000);
+    }
+  }
 });

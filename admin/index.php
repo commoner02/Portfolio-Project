@@ -1,484 +1,317 @@
 <?php
-
 require_once '../includes/auth.php';
+require_once '../includes/config.php';
 protectPage();
 
-require_once '../includes/config.php';
-
 $message = '';
+$message_type = '';
+$editProject = null;
 
-if (isset($_GET['delete'])) {
-    $project_id = $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
-    if ($stmt->execute([$project_id])) {
-        header("Location: index.php?msg=deleted");
-        exit();
-    } else {
-        $message = "Error deleting project!";
-    }
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    $message_type = $_SESSION['message_type'];
+    unset($_SESSION['message'], $_SESSION['message_type']);
 }
 
-if (isset($_GET['msg']) && !empty($_GET['msg'])) {
-    switch ($_GET['msg']) {
-        case 'added':
-            $message = "Project added successfully!";
-            break;
-        case 'updated':
-            $message = "Project updated successfully!";
-            break;
-        case 'deleted':
-            $message = "Project deleted successfully!";
-            break;
-    }
-    echo "<script>
-        setTimeout(function() {
-            window.history.replaceState({}, document.title, 'index.php');
-        }, 100);
-    </script>";
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-$projects = $pdo->query("SELECT * FROM projects ORDER BY created_at DESC")->fetchAll();
-$messages = $pdo->query("SELECT * FROM messages ORDER BY created_at DESC")->fetchAll();
+    if (isset($_POST['add_project'])) {
+        $title = trim($_POST['title']);
+        $description = trim($_POST['description']);
+        $project_url = trim($_POST['project_url']);
+        $image_filename = trim($_POST['image_filename']);
 
-$edit_mode = false;
-$project_id = '';
-$title = $description = $image_url = $project_url = '';
-
-if (isset($_GET['edit'])) {
-    $edit_mode = true;
-    $project_id = $_GET['edit'];
-
-    $stmt = $pdo->prepare("SELECT * FROM projects WHERE id = ?");
-    $stmt->execute([$project_id]);
-    $project = $stmt->fetch();
-
-    if ($project) {
-        $title = $project['title'];
-        $description = $project['description'];
-        $image_url = $project['image_url'];
-        $project_url = $project['project_url'];
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = trim($_POST['title']);
-    $description = trim($_POST['description']);
-    $project_url = trim($_POST['project_url']);
-    $image_url = trim($_POST['image_filename']);
-    $edit_mode = isset($_POST['edit_mode']) && $_POST['edit_mode'] == '1';
-    $project_id = isset($_POST['project_id']) ? $_POST['project_id'] : '';
-
-    if (empty($title) || empty($description)) {
-        $message = "Title and description are required!";
-    } else {
-        try {
-            if ($edit_mode && !empty($project_id)) {
-                $stmt = $pdo->prepare("UPDATE projects SET title=?, description=?, image_url=?, project_url=? WHERE id=?");
-                $success = $stmt->execute([$title, $description, $image_url, $project_url, $project_id]);
-                if ($success) {
-                    header("Location: index.php?msg=updated");
-                    exit();
-                } else {
-                    $message = "Error updating project!";
-                }
+        if (empty($title) || empty($description) || empty($project_url) || empty($image_filename)) {
+            $_SESSION['message'] = 'All fields are required.';
+            $_SESSION['message_type'] = 'error';
+        } elseif (!file_exists('../uploads/' . $image_filename)) {
+            $_SESSION['message'] = 'Image file not found. Please upload first.';
+            $_SESSION['message_type'] = 'error';
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO projects (title, description, project_url, image_url) VALUES (?, ?, ?, ?)");
+            if ($stmt->execute([$title, $description, $project_url, $image_filename])) {
+                $_SESSION['message'] = 'Project added successfully!';
+                $_SESSION['message_type'] = 'success';
             } else {
-                $stmt = $pdo->prepare("INSERT INTO projects (title, description, image_url, project_url) VALUES (?, ?, ?, ?)");
-                $success = $stmt->execute([$title, $description, $image_url, $project_url]);
-                if ($success) {
-                    header("Location: index.php?msg=added");
-                    exit();
-                } else {
-                    $message = "Error adding project!";
-                }
+                $_SESSION['message'] = 'Error adding project.';
+                $_SESSION['message_type'] = 'error';
             }
-        } catch (PDOException $e) {
-            $message = "Database error: " . $e->getMessage();
         }
+        header("Location: index.php");
+        exit();
+    }
+
+    if (isset($_POST['edit_project'])) {
+        $id = $_POST['project_id'];
+        $title = trim($_POST['edit_title']);
+        $description = trim($_POST['edit_description']);
+        $project_url = trim($_POST['edit_project_url']);
+        $new_image = trim($_POST['edit_image_filename']);
+
+        if (empty($title) || empty($description) || empty($project_url)) {
+            $_SESSION['message'] = 'Title, description and URL are required.';
+            $_SESSION['message_type'] = 'error';
+        } else {
+            if (!empty($new_image)) {
+                if (!file_exists('../uploads/' . $new_image)) {
+                    $_SESSION['message'] = 'New image file not found.';
+                    $_SESSION['message_type'] = 'error';
+                    header("Location: index.php");
+                    exit();
+                }
+                $old = $pdo->prepare("SELECT image_url FROM projects WHERE id = ?");
+                $old->execute([$id]);
+                $oldImg = $old->fetchColumn();
+                if ($oldImg && file_exists('../uploads/' . $oldImg)) {
+                    unlink('../uploads/' . $oldImg);
+                }
+                $stmt = $pdo->prepare("UPDATE projects SET title=?, description=?, project_url=?, image_url=? WHERE id=?");
+                $stmt->execute([$title, $description, $project_url, $new_image, $id]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE projects SET title=?, description=?, project_url=? WHERE id=?");
+                $stmt->execute([$title, $description, $project_url, $id]);
+            }
+            $_SESSION['message'] = 'Project updated successfully!';
+            $_SESSION['message_type'] = 'success';
+        }
+        
+        header("Location: index.php");
+        exit();
     }
 }
+
+if (isset($_GET['edit_project'])) {
+    $stmt = $pdo->prepare("SELECT * FROM projects WHERE id = ?");
+    $stmt->execute([$_GET['edit_project']]);
+    $editProject = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+if (isset($_GET['delete_project'])) {
+    $id = $_GET['delete_project'];
+    $stmt = $pdo->prepare("SELECT image_url FROM projects WHERE id = ?");
+    $stmt->execute([$id]);
+    $image = $stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
+    if ($stmt->execute([$id])) {
+        if ($image && file_exists('../uploads/' . $image)) {
+            unlink('../uploads/' . $image);
+        }
+        $_SESSION['message'] = 'Project deleted successfully!';
+        $_SESSION['message_type'] = 'success';
+    } else {
+        $_SESSION['message'] = 'Error deleting project.';
+        $_SESSION['message_type'] = 'error';
+    }
+    header("Location: index.php");
+    exit();
+}
+
+if (isset($_GET['delete_message'])) {
+    $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
+    if ($stmt->execute([$_GET['delete_message']])) {
+        $_SESSION['message'] = 'Message deleted successfully!';
+        $_SESSION['message_type'] = 'success';
+    } else {
+        $_SESSION['message'] = 'Error deleting message.';
+        $_SESSION['message_type'] = 'error';
+    }
+    header("Location: index.php");
+    exit();
+}
+
+$projectCount = $pdo->query("SELECT COUNT(*) FROM projects")->fetchColumn();
+$messageCount = $pdo->query("SELECT COUNT(*) FROM messages")->fetchColumn();
+$projects = $pdo->query("SELECT * FROM projects ORDER BY id DESC")->fetchAll();
+$messages = $pdo->query("SELECT * FROM messages ORDER BY id DESC LIMIT 10")->fetchAll();
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="shortcut icon" href="./uploads/logos/admin-svgrepo-com(1).svg" type="image/x-icon">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            line-height: 1.4;
-        }
-
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .header h1 {
-            margin-bottom: 5px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .section {
-            background: white;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .section-header {
-            background: #3498db;
-            color: white;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .section-content {
-            padding: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th,
-        td {
-            padding: 8px 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            vertical-align: top;
-        }
-
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .btn {
-            padding: 4px 8px;
-            text-decoration: none;
-            border-radius: 3px;
-            font-size: 12px;
-            margin-right: 3px;
-            display: inline-block;
-        }
-
-        .btn-edit {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .form-table {
-            width: 100%;
-        }
-
-        .form-table td {
-            padding: 10px;
-            border: none;
-        }
-
-        .form-table label {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .form-table input,
-        .form-table textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-
-        .form-table textarea {
-            height: 80px;
-            resize: vertical;
-        }
-
-        .submit-btn {
-            background: #2ecc71;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .cancel-btn {
-            background: #95a5a6;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 3px;
-            text-decoration: none;
-            margin-left: 10px;
-            font-size: 14px;
-        }
-
-        .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 3px;
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .project-image {
-            max-width: 60px;
-            max-height: 60px;
-            border-radius: 3px;
-        }
-
-        .image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            padding: 2px;
-            border-radius: 3px;
-            display: none;
-        }
-
-        .note {
-            color: #666;
-            font-size: 12px;
-            font-style: italic;
-            margin-bottom: 5px;
-        }
-
-        .no-data {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-            font-style: italic;
-        }
-
-        .expandable-text {
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            max-width: 300px;
-            line-height: 1.4;
-        }
-
-        .message-cell {
-            min-width: 200px;
-            max-width: 400px;
-        }
-
-        .description-cell {
-            min-width: 200px;
-            max-width: 350px;
-        }
-    </style>
+    <link rel="shortcut icon" href="../uploads/logos/admin-svgrepo-com.svg" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mozilla+Text:wght@200..700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="header">
+    <header class="header">
         <h1>Admin Dashboard</h1>
-        <p>Welcome, <?php echo $_SESSION['username']; ?>! | <a href="logout.php" style="color: white;">Logout</a>
-        </p>
-    </div>
+        <a href="logout.php" class="logout-btn">Logout</a>
+    </header>
 
     <div class="container">
-        <?php if (!empty($message)): ?>
-            <div class="alert">
-                <?php echo $message; ?>
+        <?php if ($message): ?>
+
+            <div class="message <?php echo $message_type; ?>" id="message-alert">
+                <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
 
-        <div class="section">
-            <div class="section-header">Projects</div>
-            <div class="section-content">
-                <?php if (count($projects) > 0): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>URL</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($projects as $project): ?>
-                                <tr>
-                                    <td>
-                                        <?php if (!empty($project['image_url'])): ?>
-                                            <img src="../uploads/<?php echo htmlspecialchars($project['image_url']); ?>"
-                                                alt="<?php echo htmlspecialchars($project['title']); ?>"
-                                                class="project-image">
-                                        <?php else: ?>
-                                            <div style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #666;">No Image
-                                            </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($project['title']); ?></td>
-                                    <td class="description-cell">
-                                        <div class="expandable-text"><?php echo htmlspecialchars($project['description']); ?></div>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($project['project_url'])): ?>
-                                            <a href="<?php echo htmlspecialchars($project['project_url']); ?>" target="_blank"
-                                                style="color: #3498db;">View</a>
-                                        <?php else: ?>
-                                            <span style="color: #999;">No URL</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="?edit=<?php echo $project['id']; ?>" class="btn btn-edit">Edit</a>
-                                        <a href="?delete=<?php echo $project['id']; ?>" class="btn btn-delete"
-                                            onclick="return confirm('Are you sure you want to delete this project?')">Delete</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <div class="no-data">No projects found. Add your first project below.</div>
-                <?php endif; ?>
-            </div>
-        </div>
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3><?php echo $editProject ? 'Edit Project' : 'Add New Project'; ?></h3>
 
-        <div class="section">
-            <div class="section-header"><?php echo $edit_mode ? 'Edit Project' : 'Add New Project'; ?></div>
-            <div class="section-content">
                 <form method="POST">
-                    <input type="hidden" name="edit_mode" value="<?php echo $edit_mode ? '1' : '0'; ?>">
-                    <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+                    <?php if ($editProject): ?>
+                        <input type="hidden" name="project_id" value="<?php echo $editProject['id']; ?>">
+                    <?php endif; ?>
 
-                    <table class="form-table">
-                        <tr>
-                            <td style="width: 120px;"><label for="title">Project Title:</label></td>
-                            <td><input type="text" id="title" name="title" value="<?php echo htmlspecialchars($title); ?>"
-                                    required></td>
-                        </tr>
-                        <tr>
-                            <td><label for="description">Description:</label></td>
-                            <td><textarea id="description" name="description" required><?php echo htmlspecialchars($description); ?></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label for="project_url">Project URL:</label></td>
-                            <td><input type="url" id="project_url" name="project_url" value="<?php echo htmlspecialchars($project_url); ?>"
-                                    placeholder="https://example.com"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="image_filename">Image:</label></td>
-                            <td>
-                                <div class="note">Upload image to 'uploads' folder first, then enter filename only
-                                </div>
-                                <input type="text" id="image_filename" name="image_filename"
-                                    value="<?php echo htmlspecialchars($image_url); ?>"
-                                    placeholder="filename.png" onchange="updatePreview()">
-                                <img id="imagePreview" class="image-preview" src="" alt="Image preview">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <button type="submit" class="submit-btn"><?php echo $edit_mode ? 'Update Project' : 'Add Project'; ?></button>
-                                <?php if ($edit_mode): ?>
-                                    <a href="index.php" class="cancel-btn">Cancel</a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="form-group">
+                        <label>Project Title:</label>
+                        <input type="text" name="<?php echo $editProject ? 'edit_title' : 'title'; ?>"
+                            value="<?php echo $editProject ? htmlspecialchars($editProject['title']) : ''; ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea name="<?php echo $editProject ? 'edit_description' : 'description'; ?>" required><?php echo $editProject ? htmlspecialchars($editProject['description']) : ''; ?></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Project URL:</label>
+                        <input type="url" name="<?php echo $editProject ? 'edit_project_url' : 'project_url'; ?>"
+                            value="<?php echo $editProject ? htmlspecialchars($editProject['project_url']) : ''; ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image Filename:</label>
+                        <div class="upload-note">
+                            Upload image to /uploads/ folder first, then enter filename here.
+                            <?php if ($editProject): ?>Leave empty to keep current image.<?php endif; ?>
+                        </div>
+
+                        <div class="input-with-button">
+                            <input type="text" id="imageInput" name="<?php echo $editProject ? 'edit_image_filename' : 'image_filename'; ?>"
+                                placeholder="e.g., image.jpg" <?php echo !$editProject ? 'required' : ''; ?>>
+                            <button type="button" class="preview-btn" onclick="previewImage()">Preview</button>
+                        </div>
+
+                        <div class="image-preview-box" id="preview-box">
+                            <div class="preview-title">Image Preview</div>
+                        </div>
+
+                        <?php if ($editProject): ?>
+                            <div class="current-image-display">
+                                <strong>Current Image:</strong> <?php echo htmlspecialchars($editProject['image_url']); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <button type="submit" name="<?php echo $editProject ? 'edit_project' : 'add_project'; ?>" class="btn">
+                        <?php echo $editProject ? 'Update Project' : 'Add Project'; ?>
+                    </button>
+                    <?php if ($editProject): ?>
+                        <a href="index.php" class="btn btn-cancel">Cancel</a>
+                    <?php endif; ?>
                 </form>
             </div>
+
+            <div class="dashboard-card">
+                <h3>Dashboard Stats</h3>
+                <div class="stats-item">
+                    <span class="stats-label">Total Projects:</span>
+                    <span class="stats-value"><?php echo $projectCount; ?></span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Total Messages:</span>
+                    <span class="stats-value"><?php echo $messageCount; ?></span>
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <div class="section-header">Messages</div>
-            <div class="section-content">
-                <?php if (count($messages) > 0): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Message</th>
-                                <th>Date & Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($messages as $msg): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($msg['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($msg['email']); ?></td>
-                                    <td class="message-cell">
-                                        <div class="expandable-text"><?php echo htmlspecialchars($msg['message']); ?></div>
-                                    </td>
-                                    <td><?php echo date('M j, Y g:i A', strtotime($msg['created_at'])); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <div class="no-data">No messages found.</div>
-                <?php endif; ?>
-            </div>
+        <div class="table-container">
+            <h3>Manage Projects</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>URL</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($projects as $project): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($project['title']); ?></td>
+                            <td class="description-cell"><?php echo htmlspecialchars($project['description']); ?></td>
+                            <td><a href="<?php echo htmlspecialchars($project['project_url']); ?>" target="_blank">View</a></td>
+                            <td><?php echo htmlspecialchars($project['image_url']); ?></td>
+                            <td>
+                                <a href="?edit_project=<?php echo $project['id']; ?>" class="btn btn-edit">Edit</a>
+                                <a href="?delete_project=<?php echo $project['id']; ?>" class="btn btn-danger"
+                                    onclick="return confirm('Delete this project?')">Delete</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h3>Contact Messages</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($messages as $msg): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($msg['name']); ?></td>
+                            <td><?php echo htmlspecialchars($msg['email']); ?></td>
+                            <td class="message-cell"><?php echo htmlspecialchars($msg['message']); ?></td>
+                            <td><?php echo $msg['created_at'] ?? 'N/A'; ?></td>
+                            <td>
+                                <a href="?delete_message=<?php echo $msg['id']; ?>" class="btn btn-danger"
+                                    onclick="return confirm('Delete this message?')">Delete</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        function updatePreview() {
-            const input = document.getElementById('image_filename');
-            const preview = document.getElementById('imagePreview');
-
-            if (input.value.trim()) {
-                preview.src = '../uploads/' + input.value.trim();
-                preview.style.display = 'block';
-                preview.onerror = function() {
-                    this.style.display = 'none';
-                }
-            } else {
-                preview.style.display = 'none';
-            }
+        if (document.getElementById('message-alert')) {
+            setTimeout(() => document.getElementById('message-alert').style.display = 'none', 5000);
         }
 
-        <?php if ($edit_mode && !empty($image_url)): ?>
-            updatePreview();
-        <?php endif; ?>
+        function previewImage() {
+            const filename = document.getElementById('imageInput').value.trim();
+            const preview = document.getElementById('preview-box');
 
-        setTimeout(function() {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                alert.style.display = 'none';
+            if (!filename) {
+                alert('Please enter a filename first.');
+                return;
             }
-        }, 5000);
+
+            preview.innerHTML = '<div class="preview-title">Image Preview</div><div class="placeholder">Loading...</div>';
+
+            const img = new Image();
+            img.onload = () => {
+                preview.innerHTML = `<div class="preview-title">Image Preview</div><img src="../uploads/${filename}" alt="Preview">`;
+            };
+            img.onerror = () => {
+                preview.innerHTML = '<div class="preview-title">Image Preview</div><div class="error-message">Image not found</div>';
+            };
+            img.src = `../uploads/${filename}`;
+        }
     </script>
 </body>
 
