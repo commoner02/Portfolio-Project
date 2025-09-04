@@ -28,7 +28,25 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **Security**: Password hashing, SQL injection prevention, session management
 
 ## Project Structure
-<img width="667" height="431" alt="image" src="https://github.com/user-attachments/assets/76d6b26e-d507-4ed0-9f32-b097edbadf70" />
+```
+Portfolio-Project/
+├── admin/
+│   ├── index.php           # Main admin dashboard (CRUD operations)
+│   ├── login.php           # Admin login page
+│   ├── logout.php          # Admin logout handler
+│   └── style.css           # Admin dashboard styles
+├── includes/
+│   ├── auth.php            # Authentication functions (protectPage, checkLogin)
+│   └── config.php          # Database configuration and PDO connection
+├── uploads/
+│   ├── logos/              # Skill icons and logos
+│   ├── me/                 # Profile images
+│   └── project-image.png   # Project images
+├── index.php               # Main portfolio page
+├── style.css               # Portfolio main styles
+├── script.js               # Frontend JavaScript functionality
+└── README.md               # Project documentation
+```
 
 ##  Database Schema
 
@@ -79,5 +97,6 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **JavaScript Fetch API** - AJAX form submissions
 - **CSS Grid/Flexbox** - Responsive layouts
 
-## License
-This project is open source and available under the MIT License.  
+## Contact
+* **GitHub:** [commoner02](https://github.com/commoner02)
+* **LinkedIn:** [Sree Shuvo Kumar Joy](https://www.linkedin.com/in/sree-shuvo-kumar-joy-b6a60737a/)
