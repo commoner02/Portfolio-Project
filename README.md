@@ -2,7 +2,7 @@
 
 A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CSS, and JavaScript.<br/>
 
-## 🚀 Features
+## Features
 
 ### Frontend Portfolio
 - **Responsive Design** - Works on mobile and desktop
@@ -20,24 +20,24 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **Dashboard Stats** - Project and message counts
 - **Responsive Interface** - Mobile-friendly admin panel
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Backend**: PHP 7+, MySQL
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Database**: MySQL with PDO
 - **Security**: Password hashing, SQL injection prevention, session management
 
-## 📁 Project Structure
-<img width="668" height="438" alt="image" src="https://github.com/user-attachments/assets/615dafee-f1e8-46b2-8745-8e233ac5290b" />
+## Project Structure
+<img width="667" height="431" alt="image" src="https://github.com/user-attachments/assets/76d6b26e-d507-4ed0-9f32-b097edbadf70" />
 
-## 🗄️ Database Schema
+##  Database Schema
 
 ### Tables
 - **users** - Admin login credentials
 - **projects** - Portfolio projects (title, description, image, URL)
 - **messages** - Contact form submissions
 
-## ⚡ Quick Setup
+## Quick Setup
 
 1. **Clone the repository**
 2. **Import database** (create tables for users, projects, messages)
@@ -45,7 +45,7 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 4. **Set up admin user** (hashed password in users table)
 5. **Upload to web server** (XAMPP/LAMPP)
 
-## 🔐 Admin Features
+## Admin Features
 
 - **Login System** - Secure admin authentication
 - **Add Projects** - Title, description, URL, image filename
@@ -55,7 +55,7 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **Image Preview** - Live preview of uploaded images
 - **Responsive Design** - Works on all devices
 
-## 📱 User Features
+## User Features
 
 - **Portfolio Display** - Showcase of projects and skills
 - **Contact Form** - AJAX submission with validation
@@ -63,7 +63,7 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **Smooth Scrolling** - Navigation between sections
 - **Visit Tracking** - Cookie-based visit counter
 
-## 🎨 Design Highlights
+## Design Highlights
 
 - **Modern UI** - Clean, professional design
 - **Color Scheme** - Orange/red accents on dark background
@@ -71,11 +71,13 @@ A dynamic portfolio website with admin dashboard built with PHP, MySQL, HTML, CS
 - **Responsive Grid** - CSS Grid and Flexbox layouts
 - **Smooth Animations** - CSS transitions and transforms
 
-## 🔧 Key Technologies
+## Key Technologies
 
 - **PHP Sessions** - User authentication and flash messages
 - **PHP Cookies** - Visitor tracking and persistent data storage
 - **PDO Prepared Statements** - SQL injection prevention
 - **JavaScript Fetch API** - AJAX form submissions
 - **CSS Grid/Flexbox** - Responsive layouts
-- **File Handling** - Image upload and validation
+
+## License
+This project is open source and available under the MIT License.  
