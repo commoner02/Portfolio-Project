@@ -49,11 +49,44 @@ Portfolio-Project/
 ```
 
 ##  Database Schema
+```
+Database: portfolio_db
 
-### Tables
-- **users** - Admin login credentials
-- **projects** - Portfolio projects (title, description, image, URL)
-- **messages** - Contact form submissions
+Tables:
+1. users       - Admin login credentials
+2. projects    - Portfolio projects (title, description, image, URL)
+3. messages    - Contact form submissions
+
+------------------------------------------------
+Table: users
+------------------------------------------------
+- id          INT, PRIMARY KEY, AUTO_INCREMENT
+- username    VARCHAR(255)
+- email       VARCHAR(255)
+- password    VARCHAR(255)
+- created_at  TIMESTAMP
+
+------------------------------------------------
+Table: projects
+------------------------------------------------
+- id          INT, PRIMARY KEY, AUTO_INCREMENT
+- title       VARCHAR(255)
+- description TEXT
+- project_url VARCHAR(255)
+- image_url   VARCHAR(255)
+- created_at  TIMESTAMP
+
+------------------------------------------------
+Table: messages
+------------------------------------------------
+- id          INT, PRIMARY KEY, AUTO_INCREMENT
+- name        VARCHAR(255)
+- email       VARCHAR(255)
+- message     TEXT
+- created_at  TIMESTAMP
+```
+
+
 
 ## Quick Setup
 
@@ -100,3 +133,9 @@ Portfolio-Project/
 ## Contact
 * **GitHub:** [commoner02](https://github.com/commoner02)
 * **LinkedIn:** [Sree Shuvo Kumar Joy](https://www.linkedin.com/in/sree-shuvo-kumar-joy-b6a60737a/)
+
+## Author
+- **Name:** Sree Shuvo Kumar Joy  
+- **Roll:** 2107116  
+- **Course:** Web Programming Laboratory  
+- **Institution:** KUET    
